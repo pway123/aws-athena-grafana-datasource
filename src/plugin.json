@@ -1,0 +1,38 @@
+{
+  "type": "datasource",
+  "name": "aws-athena-datasource-plugin",
+  "id": "pgateway-aws-athena-datasource-plugin",
+  "metrics": true,
+  "info": {
+    "description": "",
+    "author": {
+      "name": "Jermyn Tanu",
+      "url": ""
+    },
+    "keywords": [],
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "links": [
+      {
+        "name": "Website",
+        "url": "https://github.com/pway123/aws-athena-grafana-datasource"
+      },
+      {
+        "name": "License",
+        "url": "https://github.com/pway123/aws-athena-grafana-datasource/blob/master/LICENSE"
+      }
+    ],
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "dependencies": {
+    "grafanaVersion": "6.5.x",
+    "plugins": []
+  },
+  "backend": true,
+  "alerting": true,
+  "executable": "aws-athena-datasource-plugin"
+}

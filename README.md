@@ -1,0 +1,3 @@
+# Aws Athena Grafana Datasource Plugin
+
+to be updated...
