@@ -12,7 +12,7 @@ const TimestampLayout = "2006-01-02 15:04:05"
 
 // Wait settings
 const (
-	RequestTimeout  = time.Duration(20) * time.Second
+	RequestTimeout  = time.Duration(60) * time.Second
 	RequestInterval = time.Duration(500) * time.Millisecond
 )
 
@@ -32,4 +32,10 @@ const (
 	NamedQuery           QueryType = "NamedQuery"
 	ExecutionQuery       QueryType = "ExecutionQuery"
 	GetNamedQueryMetrics QueryType = "GetNamedQueryMetrics"
+)
+
+// Auth Type
+const (
+	Static  AuthType = "Static"
+	RoleArn AuthType = "RoleArn"
 )

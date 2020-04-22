@@ -1,18 +1,41 @@
 import React, { PureComponent, ChangeEvent } from 'react';
-import { SecretFormField, FormField } from '@grafana/ui';
-import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
-import { AthenaDsOptions, AthenaDsSecureJsonData } from './types';
+import { SecretFormField, FormField, FormLabel, Select } from '@grafana/ui';
+import { DataSourcePluginOptionsEditorProps, SelectableValue } from '@grafana/data';
+import { AthenaDsOptions, AthenaDsSecureJsonData, AuthType } from './types';
 
 interface Props extends DataSourcePluginOptionsEditorProps<AthenaDsOptions> {}
 
-interface State {}
+interface State {
+  selectedAuthType: SelectableValue;
+}
+
+const authTypes = [
+  { label: 'Static', value: AuthType.Static },
+  { label: 'Role ARN', value: AuthType.RoleArn },
+];
 
 export class ConfigEditor extends PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      selectedAuthType: authTypes.find(t => t.value === props.options.jsonData.authType) || authTypes[0],
+    };
+  }
+
   onAccessKeyChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { onOptionsChange, options } = this.props;
     const jsonData = {
       ...options.jsonData,
       accessKey: event.target.value,
+    };
+    onOptionsChange({ ...options, jsonData });
+  };
+
+  onRoleArnChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onOptionsChange, options } = this.props;
+    const jsonData = {
+      ...options.jsonData,
+      roleArn: event.target.value,
     };
     onOptionsChange({ ...options, jsonData });
   };
@@ -68,14 +91,20 @@ export class ConfigEditor extends PureComponent<Props, State> {
 
     return (
       <div className="gf-form-group">
-        <div className="gf-form">
-          <FormField
-            label="Access Key"
-            labelWidth={6}
-            inputWidth={20}
-            onChange={this.onAccessKeyChange}
-            value={jsonData.accessKey || ''}
-            placeholder="aws access key"
+        <div className="gf-form-inline">
+          <FormLabel width={6}>Format</FormLabel>
+          <Select
+            width={20}
+            options={authTypes}
+            value={this.state.selectedAuthType}
+            onChange={v => {
+              const jsonData = {
+                ...options.jsonData,
+                authType: v.value,
+              };
+              this.props.onOptionsChange({ ...options, jsonData });
+              this.setState({ selectedAuthType: v });
+            }}
           />
         </div>
 
@@ -100,21 +129,46 @@ export class ConfigEditor extends PureComponent<Props, State> {
             placeholder="primary"
           />
         </div>
-
-        <div className="gf-form-inline">
+        {this.state.selectedAuthType.value === AuthType.Static && (
           <div className="gf-form">
-            <SecretFormField
-              isConfigured={(secureJsonFields && secureJsonFields.secretAccessKey) as boolean}
-              value={secureJsonData.secretAccessKey || ''}
-              label="Secret Key"
-              placeholder="aws secret access key"
+            <FormField
+              label="Access Key"
               labelWidth={6}
               inputWidth={20}
-              onReset={this.onResetSecretAccessKey}
-              onChange={this.onSecretAccessKeyChange}
+              onChange={this.onAccessKeyChange}
+              value={jsonData.accessKey || ''}
+              placeholder="aws access key"
             />
           </div>
-        </div>
+        )}
+        {this.state.selectedAuthType.value === AuthType.Static && (
+          <div className="gf-form-inline">
+            <div className="gf-form">
+              <SecretFormField
+                isConfigured={(secureJsonFields && secureJsonFields.secretAccessKey) as boolean}
+                value={secureJsonData.secretAccessKey || ''}
+                label="Secret Key"
+                placeholder="aws secret access key"
+                labelWidth={6}
+                inputWidth={20}
+                onReset={this.onResetSecretAccessKey}
+                onChange={this.onSecretAccessKeyChange}
+              />
+            </div>
+          </div>
+        )}
+        {this.state.selectedAuthType.value === AuthType.RoleArn && (
+          <div className="gf-form">
+            <FormField
+              label="Role ARN"
+              labelWidth={6}
+              inputWidth={20}
+              onChange={this.onRoleArnChange}
+              value={jsonData.roleArn || ''}
+              placeholder="role arn"
+            />
+          </div>
+        )}
       </div>
     );
   }

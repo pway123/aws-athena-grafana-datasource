@@ -28,6 +28,8 @@ type AthenaDatasourceQueryOption struct {
 	ValueColumns string     `json:"valueColumns"`
 	UseCache     bool       `json:"useCache"`
 	Format       FormatType `json:"format"`
+	AuthType     AuthType   `json:"authType"`
+	RoleARN      AuthType   `json:"roleArn"`
 	Region       string     `json:"region"`
 	AccessKey    string     `json:"accessKey"`
 	SecretKey    string
@@ -48,6 +50,9 @@ type QueryResultMetadata struct {
 
 // QueryType ...
 type QueryType string
+
+// AuthType ...
+type AuthType string
 
 // FormatType ...
 type FormatType string

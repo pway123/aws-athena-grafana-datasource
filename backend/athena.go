@@ -8,7 +8,6 @@ import (
 	"github.com/grafana/grafana-plugin-model/go/datasource"
 	hclog "github.com/hashicorp/go-hclog"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/external"
 	"github.com/aws/aws-sdk-go-v2/service/athena"
 )
@@ -36,14 +35,18 @@ type AwsAthenaQueryHandler struct {
 func (handler *AwsAthenaQueryHandler) HandleQuery(ctx context.Context, opt *AthenaDatasourceQueryOption) (*AthenaQueryResult, error) {
 	handler.logger.Debug("HandleQuery Query opt : ", opt)
 	defer handler.cleanCache()
-	sessionToken := ""
+
+	creds, err := GetCredentials(opt)
+	if err != nil {
+		return nil, err
+	}
 	cfg, err := external.LoadDefaultAWSConfig()
 	if err != nil {
 		return nil, err
 	}
-	// TODO different creds provider?
-	if opt.AccessKey != "" && opt.SecretKey != "" {
-		cfg.Credentials = aws.NewStaticCredentialsProvider(opt.AccessKey, opt.SecretKey, sessionToken)
+	if creds != nil {
+		cfg.Credentials = creds
+		// uses default creds if none provided in opts
 	}
 	cfg.Region = opt.Region
 	client := athena.New(cfg)
@@ -192,8 +195,10 @@ func (handler *AwsAthenaQueryHandler) execQuery(ctx context.Context, targetNamed
 			if err != nil {
 				break
 			}
-			if getExecResultRes.QueryExecution.Status.State == athena.QueryExecutionStateSucceeded {
-				state = athena.QueryExecutionStateSucceeded
+			state = getExecResultRes.QueryExecution.Status.State
+			if state == athena.QueryExecutionStateSucceeded ||
+				state == athena.QueryExecutionStateFailed ||
+				state == athena.QueryExecutionStateCancelled {
 				break
 			}
 		}

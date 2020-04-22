@@ -11,6 +11,11 @@ export enum FormatType {
   Table = 'table',
 }
 
+export enum AuthType {
+  Static = 'Static',
+  RoleArn = 'RoleArn',
+}
+
 export interface AthenaDsQuery extends DataQuery {
   namedQuery?: string;
   queryType?: QueryType;
@@ -40,6 +45,8 @@ export interface AthenaDsOptions extends DataSourceJsonData {
   accessKey: string;
   region: string;
   workGroup: string;
+  authType: AuthType;
+  roleArn: string;
 }
 
 /**
